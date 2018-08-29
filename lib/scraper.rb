@@ -1,30 +1,33 @@
 require 'pry'
 class Scraper
   def self.scrape_index_page(index_url)
-    students_hash = []
-    html = Nokogiri::HTML(open(index_url))
-    html.css(".student-card").collect do |student|
-      hash = {
-        name: student.css("h4.student-name").text,
-        location: student.css("p.student-location").text,
-        profile_url: "http://students.learn.co/" + student.css("a").attribute("href")
+    students = []
+     student_list = Nokogiri::HTML(open(index_url))
+    student_list.css('div.student-card').each {|student|
+      students << {
+        :name => student.css('h4.student-name').text,
+        :location => student.css('p.student-location').text,
+        :profile_url => "./fixtures/student-site/" + student.css('a').first.attr('href')
       }
-      students_hash << hash
-    end
-    students_hash
+    }
+    students
   end
   def self.scrape_profile_page(profile_url)
-    students_hash = {}
-    html = Nokogiri::HTML(open(profile_url))
-    html.css("div.social-icon-controler a").each do |student|
-        url = student.attribute("href")
-        students_hash[:twitter_url] = url if url.include?("twitter")
-        students_hash[:linkedin_url] = url if url.include?("linkedin")
-        students_hash[:github_url] = url if url.include?("github")
-        students_hash[:blog_url] = url if student.css("img").attribute("src").text.include?("rss")
-    end
-        students_hash[:profile_quote] = html.css("div.profile-quote").text
-        students_hash[:bio] = html.css("div.bio-content p").text
-    students_hash
-  end
-end
+    profile_data = {}
+     student_page = Nokogiri::HTML(open(profile_url))
+    social_hrefs = student_page.css('div.social-icon-container a').map{
+      |link| link.attribute('href').to_s
+    }
+     twitter = social_hrefs.detect{|i| i.include?('twitter')}
+    profile_data[:twitter] = twitter if twitter
+     linked = social_hrefs.detect{|i| i.include?('linkedin')}
+    profile_data[:linkedin] = linked if linked
+     github = social_hrefs.detect{|i| i.include?('github')}
+    profile_data[:github] = github if github
+     blog = social_hrefs.detect{|i| /(\.com\/\z)|(\.com\z)/ === i}
+    profile_data[:blog] = blog if blog
+     profile_data[:profile_quote] = student_page.css('div.profile-quote').text
+     profile_data[:bio] = student_page.css('div.bio-content.content-holder div.description-holder p').text
+     profile_data
+   end
+ end
