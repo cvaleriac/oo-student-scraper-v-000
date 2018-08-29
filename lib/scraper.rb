@@ -1,6 +1,6 @@
 require 'pry'
- class Scraper
-   def self.scrape_index_page(index_url)
+class scraper
+  def self.scrape_index_page(index_url)
     students_hash = []
     html = Nokogiri::HTML(open(index_url))
     html.css(".student-card").collect do |student|
@@ -13,10 +13,9 @@ require 'pry'
     end
     students_hash
   end
-   def self.scrape_profile_page(profile_url)
-    	 students_hash = {}
-  end
-     html = Nokogiri::HTML(open(profile_url))
+  def self.scrape_profile_page(profile_url)
+    students_hash = {}
+    html = Nokogiri::HTML(open(profile_url))
     html.css("div.social-icon-controler a").each do |student|
         url = student.attribute("href")
         students_hash[:twitter_url] = url if url.include?("twitter")
@@ -28,4 +27,4 @@ require 'pry'
         students_hash[:bio] = html.css("div.bio-content p").text
     students_hash
   end
-
+end
