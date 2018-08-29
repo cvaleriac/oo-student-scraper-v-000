@@ -1,5 +1,5 @@
 require 'pry'
- class Scraper	class Scraper
+ class Scraper
    def self.scrape_index_page(index_url)
     students_hash = []
     html = Nokogiri::HTML(open(index_url))
@@ -12,10 +12,10 @@ require 'pry'
       students_hash << hash
     end
     students_hash
-  end	
+  end
    def self.scrape_profile_page(profile_url)
-    	    students_hash = {}
-  end	
+    	 students_hash = {}
+  end
      html = Nokogiri::HTML(open(profile_url))
     html.css("div.social-icon-controler a").each do |student|
         url = student.attribute("href")
